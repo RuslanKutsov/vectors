@@ -1,0 +1,928 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Тренажёр: действия с векторами</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap">
+<style id="appcss">
+:root{color-scheme:light;box-sizing:border-box}
+*{box-sizing:border-box}
+body{margin:0;padding:0}[hidden]{display:none!important}
+:root{
+  --bg:#eceff3;--card:#fbfcfd;--ink:#17212b;--muted:#5b6978;--line:#d3dae2;
+  --plane:#ffffff;--grid:#dbe2ea;--axis:#3d4f61;
+  --curve:#0e7c78;--handle:#e8590c;--p2:#7048e8;
+  --ok:#237a35;--ok-bg:#e2f3e5;--bad:#b42323;--bad-bg:#fbe8e8;
+  --aux:#ffd21f;--hint-ink:#7a5b00;--ghost:#6a7a8c;--btn:#17212b;--btn-ink:#ffffff;--focus:#1971c2;
+  --font-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-math:"STIX Two Text","Cambria Math",Georgia,"Times New Roman",serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f151b;--card:#18212a;--ink:#e7edf3;--muted:#92a1b1;--line:#2a3745;
+    --plane:#111a22;--grid:#233040;--axis:#9fb2c6;
+    --curve:#3cc4bd;--handle:#ff8a3d;--p2:#b197fc;
+    --ok:#69db7c;--ok-bg:#16331f;--bad:#ff8787;--bad-bg:#3a1d1d;
+    --aux:#8a6d00;--hint-ink:#ffd43b;--ghost:#8da0b4;--btn:#e7edf3;--btn-ink:#0f151b;--focus:#74c0fc;
+    color-scheme:dark;
+  }
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-ui);font-size:15px;line-height:1.5}
+.page{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
+.wrap{max-width:1040px;margin:0 auto}
+.bar{position:sticky;top:0;z-index:9;background:var(--bg);padding-block:12px 0;border-bottom:1px solid var(--line)}
+.bar-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;flex:none}
+.homelink{display:block;font:500 12.5px var(--font-ui);color:var(--muted);text-decoration:none}
+.homelink:hover{text-decoration:underline}
+h1{font-size:22px;font-weight:600;margin:0;letter-spacing:-.01em}
+.right{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.score{display:flex;align-items:center;gap:12px}
+.score .lab{font:500 12px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.score output{font:600 22px/1 var(--font-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.tiny{font:500 12px var(--font-ui);height:30px;padding:0 10px;border-radius:6px;border:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer}
+.langsw{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--card)}
+.langsw button{border:0;background:none;padding:5px 11px;font:600 12.5px var(--font-ui);letter-spacing:.04em;color:var(--muted);cursor:pointer}
+.langsw button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.tabs{display:flex;flex-wrap:wrap;gap:2px 6px;margin-top:8px;margin-bottom:-1px}
+.tabs button{font:500 14px var(--font-ui);min-width:38px;padding:9px 10px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted);cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.task{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,460px);gap:24px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin-top:20px}
+.task.nofig{grid-template-columns:minmax(0,1fr)}
+.task.ok{border-color:var(--ok)}
+@media (max-width:760px){.task{grid-template-columns:minmax(0,1fr)}}
+.info{min-width:0}
+.eyebrow{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font:500 12px/1 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.eyebrow>span:first-child{font-size:14px;font-weight:700;letter-spacing:.06em}
+.tally{font:500 13px/1 var(--font-mono);letter-spacing:0;text-transform:none;color:var(--ink);font-variant-numeric:tabular-nums}
+h2{font-size:17px;font-weight:600;margin:8px 0 0}
+.q{font-size:15.5px;line-height:1.75;margin:12px 0 10px}
+.note{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.45;max-width:52ch}
+.coefs{display:grid;grid-template-columns:max-content 112px 24px;column-gap:6px;row-gap:8px;align-items:center;margin:12px 0 8px}
+.coefs.two{grid-template-columns:max-content 112px 24px max-content 112px 24px}
+.coefs.two .cf:nth-child(even) label{margin-left:18px}
+.cf{display:contents}
+.cf label{font-family:var(--font-math);font-size:19px;white-space:nowrap;text-align:right}
+.rootbtn{margin-bottom:8px}
+.rootcell{grid-column:5}
+.nb{white-space:nowrap}
+@media (max-width:560px){.coefs.two .rootcell{grid-column:2}.coefs.two{grid-template-columns:max-content 112px 24px}.coefs.two .cf:nth-child(even) label{margin-left:0}}
+.hinttext{margin-top:10px;line-height:1.6}
+.fm{margin:2px 0 6px;font-size:16px;line-height:2.1}
+.frac{display:inline-flex;flex-direction:column;text-align:center;vertical-align:middle;margin:0 .15em;line-height:1.3}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:.3em .3em .08em}
+.frac>span:last-child{padding:.5em .3em 0}
+.fm .v{line-height:1.2}
+.sq{display:inline-block;position:relative;padding-left:.62em;white-space:nowrap;font-family:var(--font-math);font-size:1.05em;line-height:1.15;margin:0 .05em}
+.rsv{position:absolute;left:0;top:0;width:.62em;height:100%;overflow:visible}
+.rsv path{fill:none;stroke:currentColor;stroke-width:1.3;vector-effect:non-scaling-stroke;stroke-linejoin:miter;stroke-linecap:butt}
+.rb{display:inline-block;border-top:1.3px solid currentColor;padding:0 .12em 0 0;line-height:1.15}
+.cf input{font:500 15px var(--font-mono);width:112px;height:38px;padding:0 10px;border:1px solid var(--line);border-radius:6px;background:var(--plane);color:var(--ink)}
+.cf input.ok{border-color:var(--ok)}.cf input.bad{border-color:var(--bad)}
+.mark{width:24px;height:24px;border-radius:50%;display:inline-grid;place-items:center;font:700 15px/1 var(--font-ui);visibility:hidden;flex:none}
+.mark.ok{visibility:visible;background:var(--ok-bg);color:var(--ok)}
+.mark.bad{visibility:visible;background:var(--bad-bg);color:var(--bad)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.btn{font:500 14px var(--font-ui);height:40px;padding:0 16px;border-radius:8px;cursor:pointer}
+.btn.primary{background:var(--btn);color:var(--btn-ink);border:1px solid var(--btn)}
+.btn.secondary{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.links{display:flex;gap:16px;flex-wrap:wrap}
+.link{margin-top:10px;background:none;border:0;padding:0;font:500 13.5px var(--font-ui);color:var(--muted);text-decoration:underline;cursor:pointer}
+.link[aria-pressed="true"]{color:var(--ink)}
+.status{margin:12px 0 0;padding:8px 10px;border-radius:6px;font-size:14px;line-height:1.7}
+.status.ok{color:var(--ok);background:var(--ok-bg)}
+.status.bad{color:var(--bad);background:var(--bad-bg)}
+.status.info{color:var(--ink);background:var(--bg)}
+.status .sol{margin-top:6px}
+.seg{display:inline-flex}
+.seg button{font:500 13px var(--font-ui);padding:0 12px;min-width:36px;height:32px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;margin-left:-1px}
+.seg button:first-child{border-radius:6px 0 0 6px;margin-left:0}
+.seg button:last-child{border-radius:0 6px 6px 0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;max-width:460px;margin-inline:auto}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.plane{min-width:0}
+.fig{touch-action:none;user-select:none;-webkit-user-select:none}
+.fig svg{display:block;width:100%;height:auto;margin-inline:auto}
+.plane-bg{fill:var(--plane);stroke:var(--line);stroke-width:1}
+.grid{stroke:var(--grid);stroke-width:1;fill:none}
+.axis{stroke:var(--axis);stroke-width:1.6}
+.arrow{fill:var(--axis)}
+.tick{fill:var(--muted);font:400 11px var(--font-mono)}
+.axl{fill:var(--axis);font:italic 400 15px var(--font-math)}
+.k-a{stroke:var(--curve);fill:var(--curve)}
+.k-b{stroke:var(--handle);fill:var(--handle)}
+.k-c{stroke:var(--p2);fill:var(--p2)}
+.k-r{stroke:var(--p2);fill:var(--p2)}
+.vec{stroke-width:3.2;stroke-linecap:round}
+.vn{font:italic 600 19px var(--font-math);stroke:none}
+.va{fill:none;stroke-width:1.3}
+.dl{stroke:var(--axis);fill:none;stroke-width:2.2;stroke-dasharray:7 5;stroke-linecap:round}
+.dt{fill:var(--axis);stroke:none}
+.gd{stroke:var(--ghost);stroke-width:1.3;stroke-dasharray:5 4;fill:none}
+.hl{stroke:var(--aux);stroke-width:6;stroke-linecap:round}
+.hd{stroke:var(--hint-ink);stroke-width:1.5;stroke-dasharray:5 4;fill:none}
+.ht{fill:var(--hint-ink);font:italic 600 15px var(--font-math);paint-order:stroke;stroke:var(--plane);stroke-width:3px;stroke-linejoin:round}
+.arc{fill:none;stroke:var(--handle);stroke-width:2.4}
+.at{fill:var(--ink);font:600 13.5px var(--font-mono);paint-order:stroke;stroke:var(--plane);stroke-width:3px;stroke-linejoin:round}
+.at .it,.ht .it{font:italic 600 15px var(--font-math)}
+.am{fill:var(--ink);font:600 16px var(--font-math);paint-order:stroke;stroke:var(--plane);stroke-width:3px;stroke-linejoin:round}
+.am .it{font-style:italic}
+.rbar{stroke:var(--ink);stroke-width:1.3;fill:none}
+.v,i{font-family:var(--font-math);font-size:1.1em}
+.v{font-style:italic;position:relative;display:inline-block}
+.v::before{content:"→";position:absolute;left:.08em;top:-.46em;font-size:.6em;font-style:normal;line-height:1;font-family:var(--font-ui)}
+.q .v{margin-top:.2em}
+.savebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:14px;padding:8px 12px;border:1px dashed var(--line);border-radius:8px;color:var(--muted);font-size:13.5px}
+.savebar .sv-l{font-weight:500;color:var(--ink)}
+.savebar .savebtns{display:inline-flex;gap:6px}
+.savebar .tiny{color:var(--ink)}
+.savebar .tiny:disabled{opacity:.45;cursor:default}
+.savebar .link{margin:0}
+</style>
+</head>
+<body>
+<div class="page"><div class="wrap">
+<header class="bar">
+  <div class="bar-row">
+    <div class="brand"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect x="1.5" y="1.5" width="61" height="61" rx="13" fill="#fbfcfe" stroke="#d3d9e8" stroke-width="2"/><g stroke="#d3d9e8" stroke-width="1"><path d="M16 8V56M32 8V56M48 8V56M8 16H56M8 32H56M8 48H56"/></g><g fill="none" stroke="#1b2a55" stroke-width="2.4" stroke-linecap="round"><path d="M8 52H56M12 56V8"/></g><g fill="none" stroke-width="3.4" stroke-linecap="round"><path d="M16 46 38 38" stroke="#0e7c78"/><path d="M38 38 44 18" stroke="#e8590c"/><path d="M16 46 44 18" stroke="#7048e8" stroke-dasharray="1 6"/></g><g><polygon points="41,36.5 33.5,35 36.5,41.5" fill="#0e7c78"/><polygon points="45,13.5 40,20.5 47.8,20" fill="#e8590c"/></g></svg>
+      <div><a class="homelink" id="home" href="../"></a><h1 id="h1"></h1></div></div>
+    <div class="right">
+      <div class="score"><span class="lab" id="lbs"></span><output id="sc" aria-live="polite">0</output><button type="button" class="tiny" id="reset" onclick="resetStat()"></button></div>
+      <div class="langsw" role="group" aria-label="Language"><button type="button" id="lru" aria-pressed="true" onclick="setLang('ru')">RU</button><button type="button" id="len" aria-pressed="false" onclick="setLang('en')">EN</button></div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+</header>
+<div class="savebar"><span class="sv-l" id="sv-l"></span><span class="savebtns"><button type="button" class="tiny" id="save-pdf" disabled>PDF</button><button type="button" class="tiny" id="save-html" disabled>HTML</button></span><span id="rep-count"></span><button type="button" class="link" id="rep-clear" hidden></button></div>
+<main id="cards"></main>
+</div></div>
+
+<script>
+/* ---------- utils ---------- */
+const $=id=>document.getElementById(id);
+let lang='ru';
+try{lang=localStorage.getItem('trainers.lang')==='en'?'en':'ru'}catch(e){}
+const L=(ru,en)=>lang==='ru'?ru:en;
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[ri(0,a.length-1)];
+const sg=()=>Math.random()<.5?-1:1;
+const hyp=(x,y)=>Math.hypot(x,y);
+const isInt=v=>Math.abs(v-Math.round(v))<1e-9;
+const eq=(p,q)=>p[0]===q[0]&&p[1]===q[1];
+const V=n=>`<span class="v">${n}</span>`;
+const fmt=x=>{let s=String(Math.round(x*100)/100).replace('-','−');return lang==='ru'?s.replace('.',','):s};
+const pr=n=>n<0?`(${fmt(n)})`:fmt(n);
+const vc=v=>`(${fmt(v[0])}; ${fmt(v[1])})`;
+const rootTxt=n=>{const r=Math.sqrt(n);return isInt(r)?String(Math.round(r)):'√'+n};
+const I=n=>`<i>${n}</i>`;
+const SQ=x=>`<span class="sq"><svg class="rsv" viewBox="0 0 10 20" preserveAspectRatio="none" aria-hidden="true"><path d="M0.6 12 L2.6 10.2 L5.2 18.6 L9.2 0.65 H10"/></svg><span class="rb">${x}</span></span>`;
+const dotp=(a,b)=>a[0]*b[0]+a[1]*b[1];
+const PY=[[3,4],[4,3],[6,8],[8,6],[5,12],[12,5]];
+const DV={x0:-9,x1:11,y0:-6,y1:8};
+
+const S={uid:0,root:null,task:0,stat:null,tried:false,counted:false,vecs:[],drawn:[],tool:'move',view:{...DV},cell:24,p:null,hint:false,drag:null,last:null};
+
+function parse(s){
+  s=String(s||'').trim();if(!s)return NaN;
+  s=s.replace(/,/g,'.').replace(/[−–—]/g,'-').replace(/[×·]/g,'*').replace(/\^/g,'**')
+     .replace(/√\s*\(/g,'sqrt(').replace(/√\s*([0-9.]+)/g,'sqrt($1)');
+  s=s.replace(/(\d|\))\s*(sqrt|\()/g,'$1*$2').replace(/\)\s*(\d)/g,')*$1');
+  if(!/^[0-9+\-*\/().\s]*$/.test(s.replace(/sqrt/g,'')))return NaN;
+  try{const v=Function('sqrt','"use strict";return ('+s+')')(Math.sqrt);return typeof v==='number'?v:NaN}catch(e){return NaN}
+}
+function anyVec(m){let x,y;do{x=ri(-m,m);y=ri(-m,m)}while(!x&&!y);return[x,y]}
+function intLenVec(mc){
+  if(Math.random()<.25){const k=ri(1,Math.min(8,mc));return Math.random()<.5?[sg()*k,0]:[0,sg()*k]}
+  const q=pick(PY.filter(t=>Math.max(t[0],t[1])<=mc));return[sg()*q[0],sg()*q[1]]}
+function search(gen,ok,n){let r;for(let i=0;i<n;i++){r=gen();if(ok(r))return r}return r}
+function mk(name,dx,dy,movable){return{name,col:'abc'.includes(name)?name:'r',dx,dy,tx:0,ty:0,movable:!!movable}}
+const head=v=>[v.tx+v.dx,v.ty+v.dy];
+function place(v,m){
+  m=m===undefined?1:m;const w=S.view;
+  let lx=Math.max(w.x0,w.x0-v.dx)+m,hx=Math.min(w.x1,w.x1-v.dx)-m,ly=Math.max(w.y0,w.y0-v.dy)+m,hy=Math.min(w.y1,w.y1-v.dy)-m;
+  if(Math.ceil(lx)>Math.floor(hx))lx=hx=Math.round((lx+hx)/2);
+  if(Math.ceil(ly)>Math.floor(hy))ly=hy=Math.round((ly+hy)/2);
+  v.tx=ri(Math.ceil(lx),Math.floor(hx));v.ty=ri(Math.ceil(ly),Math.floor(hy));
+}
+function placeAll(vs,sep){
+  sep=sep||4;
+  for(let t=0;t<200;t++){
+    vs.forEach(v=>place(v));let ok=true;
+    for(let i=0;i<vs.length;i++)for(let j=i+1;j<vs.length;j++)
+      if(Math.max(Math.abs(vs[i].tx-vs[j].tx),Math.abs(vs[i].ty-vs[j].ty))<sep)ok=false;
+    if(ok)break;
+  }
+}
+const fv=n=>S.vecs.find(v=>v.name===n);
+const dvecs=()=>S.drawn.filter(d=>d.type==='vec');
+const dlines=()=>S.drawn.filter(d=>d.type==='line');
+const hasVec=(p,q)=>dvecs().some(d=>d.x1===p[0]&&d.y1===p[1]&&d.x2===q[0]&&d.y2===q[1]);
+const hasLine=(p,q)=>dlines().some(d=>(d.x1===p[0]&&d.y1===p[1]&&d.x2===q[0]&&d.y2===q[1])||(d.x1===q[0]&&d.y1===q[1]&&d.x2===p[0]&&d.y2===p[1]));
+function combTxt(co,names){
+  let s='';co.forEach((c,j)=>{if(!c)return;const ab=Math.abs(c);const body=(ab===1?'':ab)+V(names[j]);
+    if(!s)s=(c<0?'−':'')+body;else s+=(c<0?' − ':' + ')+body});return s}
+const comb=(co,vs)=>[0,1].map(i=>co.reduce((s,c,j)=>s+c*vs[j][i],0));
+const sub=(lbl)=>lbl; // placeholder
+
+/* ---------- tasks ---------- */
+const NOTE_SQRT=()=>L('Если ответ иррационален, запишите его с корнем (например, 5√3 или √5) или десятичной дробью с точностью до 0,01. Кнопка √ вставляет знак корня.','If the answer is irrational, write it with a root (e.g. 5√3 or √5) or as a decimal to 0.01. The √ button inserts the root sign.');
+
+/* ---- label placement (no overlaps) ---- */
+function segHit(g,r){
+  const n=Math.max(2,Math.ceil(Math.hypot(g[2]-g[0],g[3]-g[1])/3));
+  for(let i=0;i<=n;i++){const x=g[0]+(g[2]-g[0])*i/n,y=g[1]+(g[3]-g[1])*i/n;if(x>=r[0]-2&&x<=r[2]+2&&y>=r[1]-2&&y<=r[3]+2)return true}
+  return false;
+}
+function fit(ctx,cands,w,h){
+  let best=null,bs=1e9;
+  const score=(c,i)=>{
+    const r=[c[0]-w/2,c[1]-h/2,c[0]+w/2,c[1]+h/2];let sc=i;
+    if(r[0]<3||r[1]<3||r[2]>ctx.W-3||r[3]>ctx.H-3)sc+=1e4;
+    ctx.rects.forEach(o=>{if(r[0]<o[2]+2&&r[2]>o[0]-2&&r[1]<o[3]+2&&r[3]>o[1]-2)sc+=1e3});
+    ctx.segs.forEach(g=>{if(segHit(g,r))sc+=300});
+    if(sc<bs){bs=sc;best={x:c[0],y:c[1],r}}
+  };
+  cands.forEach((c,i)=>score(c,i*.4));
+  if(bs>=300&&cands.length){ // fallback: scan the neighbourhood of the preferred spot
+    const c0=cands[0];
+    for(let dx=-130;dx<=130;dx+=6)for(let dy=-110;dy<=110;dy+=6)
+      score([c0[0]+dx,c0[1]+dy],Math.hypot(dx,dy)*.03);
+  }
+  ctx.rects.push(best.r);return best;
+}
+function sideCands(p,q,w,h){
+  const out=[],dx=q[0]-p[0],dy=q[1]-p[1],l=Math.hypot(dx,dy)||1,nx=-dy/l,ny=dx/l;
+  const up=(ny<0||(ny===0&&nx<0))?1:-1;
+  [.5,.35,.65,.2,.8].forEach(t=>[up,-up].forEach(sd=>[0,8,16].forEach(ex=>{
+    const dd=4+Math.abs(nx)*w/2+Math.abs(ny)*h/2+ex;
+    out.push([p[0]+dx*t+sd*nx*dd,p[1]+dy*t+sd*ny*dd]);
+  })));
+  return out;
+}
+function projSvg(v){return (X,Y,c,ctx)=>{
+  const x1=v.tx,y1=v.ty,x2=v.tx+v.dx,y2=v.ty+v.dy;
+  const dl=(a,b,e,f)=>{ctx.segs.push([X(a),Y(b),X(e),Y(f)]);return `<line class="hd" x1="${X(a)}" y1="${Y(b)}" x2="${X(e)}" y2="${Y(f)}"/>`};
+  const seg=(a,b,e,f)=>`<line class="hl" x1="${X(a)}" y1="${Y(b)}" x2="${X(e)}" y2="${Y(f)}"/>`;
+  let o=dl(x1,y1,x1,0)+dl(x2,y2,x2,0)+dl(x1,y1,0,y1)+dl(x2,y2,0,y2);
+  const sx=v.dx!==0,sy=v.dy!==0;
+  if(sx)o+=seg(x1,0,x2,0);if(sy)o+=seg(0,y1,0,y2);
+  const lab=(b,sub)=>`<text class="ht" x="${b.x}" y="${b.y+5}" text-anchor="middle">a<tspan font-size="11" dy="3">${sub}</tspan></text>`;
+  if(sx){const mx=(X(x1)+X(x2))/2,ax=Y(0),cs=[];[0,-26,26,-52,52].forEach(d=>cs.push([mx+d,ax-14]));[0,-26,26,-52,52].forEach(d=>cs.push([mx+d,ax+34]));o+=lab(fit(ctx,cs,26,18),'x')}
+  if(sy){const my=(Y(y1)+Y(y2))/2,ay=X(0),cs=[];[0,-24,24,-48,48].forEach(d=>cs.push([ay+20,my+d]));[0,-24,24,-48,48].forEach(d=>cs.push([ay-46,my+d]));o+=lab(fit(ctx,cs,26,18),'y')}
+  return o}}
+
+function g1(){
+  S.view={...DV};let d;const r=Math.random();
+  if(r<.3){const k=ri(2,9);d=Math.random()<.5?[sg()*k,0]:[0,sg()*k]}
+  else if(r<.75){const q=pick(PY);d=[sg()*q[0],sg()*q[1]]}
+  else{do{d=[sg()*ri(1,5),sg()*ri(1,5)]}while(isInt(hyp(d[0],d[1])))}
+  const v=mk('a',d[0],d[1],false);place(v);S.vecs=[v];
+  const ln=hyp(d[0],d[1]);
+  return{mode:'axes',tools:null,hint:true,
+    text:()=>L(`На координатной плоскости изображён вектор ${V('a')}. Найдите проекции вектора на оси координат и его длину.`,`A vector ${V('a')} is shown on the coordinate plane. Find its projections on the axes and its length.`)+`<div class="note">${NOTE_SQRT()}</div>`,
+    fields:[{id:'x',label:['<i>a</i><sub>x</sub> =','<i>a</i><sub>x</sub> ='],ans:d[0]},{id:'y',label:['<i>a</i><sub>y</sub> =','<i>a</i><sub>y</sub> ='],ans:d[1]},{id:'m',label:[`|${V('a')}| =`,`|${V('a')}| =`],ans:ln}],
+    extra:projSvg(v),extraOnHint:true,
+    sol:()=>`<i>a</i><sub>x</sub> = ${fmt(v.tx+v.dx)} − ${pr(v.tx)} = ${fmt(d[0])},&nbsp; <i>a</i><sub>y</sub> = ${fmt(v.ty+v.dy)} − ${pr(v.ty)} = ${fmt(d[1])}<br>|<i>a</i>| = √(${fmt(d[0]*d[0])} + ${fmt(d[1]*d[1])}) = ${rootTxt(d[0]*d[0]+d[1]*d[1])}`};
+}
+
+function g2(){
+  S.view={x0:-8,x1:8,y0:-6,y1:6};
+  const ang=pick([30,45,60]),fromX=Math.random()<.5,qx=sg(),qy=sg();
+  let m,mTxt,along,perp,alT,peT;
+  let mH;
+  if(ang===45){const k=ri(2,8);m=k*Math.SQRT2;mTxt=k+'√2';mH=k+SQ('2');along=perp=k;alT=peT=String(k)}
+  else{m=2*ri(2,6);mTxt=String(m);mH=mTxt;const h=m/2;
+    if(ang===30){along=h*Math.sqrt(3);alT=h+'√3';perp=h;peT=String(h)}else{along=h;alT=String(h);perp=h*Math.sqrt(3);peT=h+'√3'}}
+  const dx=fromX?qx*along:qx*perp,dy=fromX?qy*perp:qy*along;
+  const dxT=(qx<0?'−':'')+(fromX?alT:peT),dyT=(qy<0?'−':'')+(fromX?peT:alT);
+  const ux=dx/m,uy=dy/m;const v=mk('a',ux*6,uy*6,false);S.vecs=[v];
+  const axisName=fromX?'Ox':'Oy',cosAx=fromX?'x':'y';
+  return{mode:'bare',tools:null,hint:false,
+    text:()=>L(`Модуль вектора ${V('a')} равен ${mH} (см. рисунок). Найдите проекции вектора на оси координат.`,`The magnitude of vector ${V('a')} is ${mH} (see figure). Find the projections of the vector on the coordinate axes.`)+`<div class="note">${NOTE_SQRT()}</div>`,
+    fields:[{id:'x',label:['<i>a</i><sub>x</sub> =','<i>a</i><sub>x</sub> ='],ans:dx},{id:'y',label:['<i>a</i><sub>y</sub> =','<i>a</i><sub>y</sub> ='],ans:dy}],
+    extra:(X,Y,c,ctx)=>{
+      const o=[X(0),Y(0)],r=1.8*c;
+      const f0=fromX?(qx>0?0:Math.PI):(qy>0?Math.PI/2:-Math.PI/2),f1=Math.atan2(uy,ux);
+      let df=f1-f0;while(df>Math.PI)df-=2*Math.PI;while(df<=-Math.PI)df+=2*Math.PI;
+      const pt=(f,rr)=>[o[0]+rr*Math.cos(f),o[1]-rr*Math.sin(f)];
+      const A=pt(f0,r),B=pt(f1,r);
+      const hx=X(v.dx),hy=Y(v.dy);
+      ctx.segs.push([hx,hy,hx,o[1]],[hx,hy,o[0],hy]);
+      let prev=A;for(let i=1;i<=12;i++){const q=pt(f0+df*i/12,r);ctx.segs.push([prev[0],prev[1],q[0],q[1]]);prev=q}
+      let out=`<line class="gd" x1="${hx}" y1="${hy}" x2="${hx}" y2="${o[1]}"/><line class="gd" x1="${hx}" y1="${hy}" x2="${o[0]}" y2="${hy}"/>`+
+        `<path class="arc" d="M${A[0]} ${A[1]} A${r} ${r} 0 0 ${df>0?0:1} ${B[0]} ${B[1]}"/>`;
+      /* candidates for the angle value: ring around the arc, nearest to the arc first */
+      const half=Math.abs(df)/2,mid=f0+df/2,cl=[];
+      for(let k=1.4;k<=3.4;k+=.1)for(let d=-(half+.9);d<=half+.9;d+=.07)
+        cl.push({p:pt(mid+d,r*k),cost:(k-1.4)*r*1.6+Math.abs(d)*r*.22+(Math.abs(d)>half?6:0)});
+      cl.sort((u,v)=>u.cost-v.cost);
+      const bl=fit(ctx,cl.map(q=>q.p),36,18);
+      out+=`<text class="at" x="${bl.x}" y="${bl.y+5}" text-anchor="middle">${ang}°</text>`;
+      const tw=(String(mTxt).length+5)*8.4;
+      const bm=fit(ctx,sideCands(o,[hx,hy],tw,18),tw,18);
+      out+=`<text class="am" x="${bm.x}" y="${bm.y+5}" text-anchor="middle"><tspan class="it">a</tspan> = ${mTxt.replace('√2','√<tspan class="rr">2</tspan>')}</text>`;
+      return out},
+    sol:()=>fromX?
+      L(`<i>a</i><sub>x</sub> = ${qx<0?'−':''}|<i>a</i>|·cos ${ang}° = ${dxT},&nbsp; <i>a</i><sub>y</sub> = ${qy<0?'−':''}|<i>a</i>|·sin ${ang}° = ${dyT}`,`<i>a</i><sub>x</sub> = ${qx<0?'−':''}|<i>a</i>|·cos ${ang}° = ${dxT},&nbsp; <i>a</i><sub>y</sub> = ${qy<0?'−':''}|<i>a</i>|·sin ${ang}° = ${dyT}`):
+      L(`<i>a</i><sub>y</sub> = ${qy<0?'−':''}|<i>a</i>|·cos ${ang}° = ${dyT},&nbsp; <i>a</i><sub>x</sub> = ${qx<0?'−':''}|<i>a</i>|·sin ${ang}° = ${dxT}`,`<i>a</i><sub>y</sub> = ${qy<0?'−':''}|<i>a</i>|·cos ${ang}° = ${dyT},&nbsp; <i>a</i><sub>x</sub> = ${qx<0?'−':''}|<i>a</i>|·sin ${ang}° = ${dxT}`)};
+}
+
+function twoVecs(){
+  S.view={...DV};let a,b;
+  do{a=anyVec(5);b=anyVec(5)}while(Math.abs(a[0])+Math.abs(a[1])<2||Math.abs(b[0])+Math.abs(b[1])<2||a[0]*b[1]-a[1]*b[0]===0);
+  const va=mk('a',a[0],a[1],true),vb=mk('b',b[0],b[1],true);
+  let t=0;do{placeAll([va,vb]);t++}while(t<50&&(eq([vb.tx,vb.ty],head(va))||eq([va.tx,va.ty],head(vb))));
+  S.vecs=[va,vb];return[a,b];
+}
+function chkTri(){
+  const a=fv('a'),b=fv('b'),sm=[a.dx+b.dx,a.dy+b.dy];let s0=null;
+  if(eq([b.tx,b.ty],head(a)))s0=[a.tx,a.ty];else if(eq([a.tx,a.ty],head(b)))s0=[b.tx,b.ty];
+  if(!s0)return{ok:false,msg:L('Векторы не соединены «конец к началу»: сдвиньте один вектор так, чтобы его начало совпало с концом другого.','The vectors are not joined head-to-tail: move one vector so that its tail meets the head of the other.')};
+  if(hasVec(s0,[s0[0]+sm[0],s0[1]+sm[1]]))return{ok:true};
+  return{ok:false,msg:L('Вектор суммы нужно провести инструментом «Вектор» из начала первого вектора в конец второго.','Draw the sum with the Vector tool from the tail of the first vector to the head of the second.')};
+}
+function g3(){
+  const[a,b]=twoVecs();
+  return{mode:'plain',tools:['move','vec','erase'],fields:[],drawCheck:chkTri,
+    text:()=>L(`Постройте сумму <span class="nb">${V('a')} + ${V('b')}</span> по правилу треугольника. Двигайте векторы так, чтобы начало одного совпало с концом другого, затем инструментом «Вектор» проведите вектор суммы.`,`Construct <span class="nb">${V('a')} + ${V('b')}</span> by the triangle rule. Move the vectors so that the tail of one meets the head of the other, then use the Vector tool to draw the sum.`),
+    sol:()=>L(`Сумма имеет координаты ${vc([a[0]+b[0],a[1]+b[1]])}: ${vc(a)} + ${vc(b)}.`,`The sum has coordinates ${vc([a[0]+b[0],a[1]+b[1]])}: ${vc(a)} + ${vc(b)}.`)};
+}
+function g4(){
+  const[a,b]=twoVecs();const va=fv('a'),vb=fv('b');
+  let t=0;do{placeAll([va,vb])}while(false);
+  return{mode:'plain',tools:['move','line','vec','erase'],fields:[],
+    drawCheck:()=>{
+      const a=fv('a'),b=fv('b');
+      if(!eq([a.tx,a.ty],[b.tx,b.ty]))return{ok:false,msg:L('Совместите начала векторов в одной точке.','Place the tails of both vectors at the same point.')};
+      const s0=[a.tx,a.ty],A=head(a),B=head(b),C=[s0[0]+a.dx+b.dx,s0[1]+a.dy+b.dy];
+      const m=[];
+      if(!hasLine(A,C))m.push(L(`Проведите (инструментом «Отрезок») линию из конца вектора ${V('a')}, параллельную ${V('b')}, до четвёртой вершины параллелограмма.`,`Use the Segment tool to draw from the head of ${V('a')} a line parallel to ${V('b')}, up to the fourth vertex.`));
+      if(!hasLine(B,C))m.push(L(`Проведите линию из конца вектора ${V('b')}, параллельную ${V('a')}, до четвёртой вершины.`,`Draw from the head of ${V('b')} a line parallel to ${V('a')}, up to the fourth vertex.`));
+      if(!hasVec(s0,C))m.push(L('Проведите инструментом «Вектор» диагональ параллелограмма из общего начала.','Draw the diagonal of the parallelogram from the common tail with the Vector tool.'));
+      return m.length?{ok:false,msg:m.join('<br>')}:{ok:true}},
+    text:()=>L(`Постройте сумму <span class="nb">${V('a')} + ${V('b')}</span> по правилу параллелограмма. Совместите начала векторов и постройте на них, как на сторонах, параллелограмм (инструментом «Отрезок» постройте отрезки, параллельные векторам), затем проведите вектор суммы.`,`Construct <span class="nb">${V('a')} + ${V('b')}</span> by the parallelogram rule. Put the tails together and build on them, as on sides, a parallelogram (use the Segment tool for segments parallel to the vectors), then draw the sum.`),
+    sol:()=>L(`Диагональ имеет координаты ${vc([a[0]+b[0],a[1]+b[1]])}.`,`The diagonal has coordinates ${vc([a[0]+b[0],a[1]+b[1]])}.`)};
+}
+function g5(){
+  const[a,b]=twoVecs();const ab=Math.random()<.5;
+  const first=ab?'a':'b',second=ab?'b':'a';const d=ab?[a[0]-b[0],a[1]-b[1]]:[b[0]-a[0],b[1]-a[1]];
+  return{mode:'plain',tools:['move','vec','erase'],fields:[],
+    drawCheck:()=>{
+      const va=fv('a'),vb=fv('b');
+      if(!eq([va.tx,va.ty],[vb.tx,vb.ty]))return{ok:false,msg:L('Совместите начала векторов в одной точке.','Place the tails of both vectors at the same point.')};
+      const f=fv(first),s=fv(second);
+      if(hasVec(head(s),head(f)))return{ok:true};
+      return{ok:false,msg:L(`Вектор разности ${V(first)} − ${V(second)} идёт из конца вектора ${V(second)} (вычитаемого) в конец вектора ${V(first)} (уменьшаемого).`,`The difference ${V(first)} − ${V(second)} goes from the head of ${V(second)} (subtrahend) to the head of ${V(first)} (minuend).`)}},
+    text:()=>L(`Постройте разность <span class="nb">${V(first)} − ${V(second)}</span> по правилу треугольника. Совместите начала векторов и инструментом «Вектор» проведите вектор разности.`,`Construct <span class="nb">${V(first)} − ${V(second)}</span> by the triangle rule. Put the tails together and draw the difference with the Vector tool.`),
+    sol:()=>L(`Разность ${V(first)} − ${V(second)} имеет координаты ${vc(d)}. Она направлена из конца ${V(second)} в конец ${V(first)}.`,`${V(first)} − ${V(second)} has coordinates ${vc(d)}. It points from the head of ${V(second)} to the head of ${V(first)}.`)};
+}
+function g6(){
+  S.view={...DV};
+  const m=Math.floor(Math.random()*3),op=m===0?1:-1,rev=m===2; /* 0: a+b, 1: a−b, 2: b−a */
+  const [a,b,r]=search(()=>{const a=anyVec(5),b=anyVec(5);return[a,b,rev?[b[0]-a[0],b[1]-a[1]]:[a[0]+op*b[0],a[1]+op*b[1]]]},
+    z=>(z[0][0]*z[1][1]-z[0][1]*z[1][0]!==0)&&(z[2][0]||z[2][1])&&isInt(hyp(z[2][0],z[2][1])),4000);
+  const va=mk('a',a[0],a[1],true),vb=mk('b',b[0],b[1],true);placeAll([va,vb],3);S.vecs=[va,vb];
+  const sgn=op>0?'+':'−';const ln=hyp(r[0],r[1]);
+  return{mode:'axes',tools:['move','vec','erase'],
+    text:()=>L(`Постройте вектор <span class="nb">${V('c')} = ${rev?V('b')+' '+sgn+' '+V('a'):V('a')+' '+sgn+' '+V('b')}</span> любым способом (можно двигать векторы и проводить вектор инструментом «Вектор»). Затем найдите проекции векторов ${V('a')}, ${V('b')}, ${V('c')} на оси и длину вектора ${V('c')}.`,`Construct <span class="nb">${V('c')} = ${rev?V('b')+' '+sgn+' '+V('a'):V('a')+' '+sgn+' '+V('b')}</span> in any way (you may move the vectors and draw with the Vector tool). Then find the projections of ${V('a')}, ${V('b')}, ${V('c')} and the length of ${V('c')}.`)+(isInt(ln)?'':`<div class="note">${NOTE_SQRT()}</div>`),
+    fields:[{id:'ax',label:['<i>a</i><sub>x</sub> =','<i>a</i><sub>x</sub> ='],ans:a[0]},{id:'ay',label:['<i>a</i><sub>y</sub> =','<i>a</i><sub>y</sub> ='],ans:a[1]},
+      {id:'bx',label:['<i>b</i><sub>x</sub> =','<i>b</i><sub>x</sub> ='],ans:b[0]},{id:'by',label:['<i>b</i><sub>y</sub> =','<i>b</i><sub>y</sub> ='],ans:b[1]},
+      {id:'cx',label:['<i>c</i><sub>x</sub> =','<i>c</i><sub>x</sub> ='],ans:r[0]},{id:'cy',label:['<i>c</i><sub>y</sub> =','<i>c</i><sub>y</sub> ='],ans:r[1]},
+      {id:'cl',label:[`|${V('c')}| =`,`|${V('c')}| =`],ans:ln}],
+    drawCheck:()=>dvecs().some(d=>d.x2-d.x1===r[0]&&d.y2-d.y1===r[1])?{ok:true}:{ok:false,msg:L('Вектор '+(op>0?'суммы':'разности')+' не построен или построен неверно.','The '+(op>0?'sum':'difference')+' vector is missing or wrong.')},
+    after:()=>`<div class="sol"><i>c</i><sub>x</sub> = ${rev?'<i>b</i><sub>x</sub> '+sgn+' <i>a</i><sub>x</sub> = '+pr(b[0])+' '+sgn+' '+pr(a[0]):'<i>a</i><sub>x</sub> '+sgn+' <i>b</i><sub>x</sub> = '+pr(a[0])+' '+sgn+' '+pr(b[0])} = ${fmt(r[0])};&nbsp; <i>c</i><sub>y</sub> = ${rev?'<i>b</i><sub>y</sub> '+sgn+' <i>a</i><sub>y</sub> = '+pr(b[1])+' '+sgn+' '+pr(a[1]):'<i>a</i><sub>y</sub> '+sgn+' <i>b</i><sub>y</sub> = '+pr(a[1])+' '+sgn+' '+pr(b[1])} = ${fmt(r[1])}<br>${L('Проекция '+(op>0?'суммы равна сумме':'разности равна разности')+' проекций.','The projection of the '+(op>0?'sum equals the sum':'difference equals the difference')+' of the projections.')}</div>`,
+    sol:()=>`${V('c')} = ${vc(r)},&nbsp; |<i>c</i>| = ${rootTxt(r[0]*r[0]+r[1]*r[1])}`};
+}
+function g7(){
+  S.view={...DV};
+  const ks=[2,3,-2,-3,0.5,-0.5,1.5,-1.5];
+  const k=Math.random()<.06?-1:pick(ks);
+  const [a,r]=search(()=>{const a=Math.random()<.7?intLenVec(6):anyVec(5);return[a,[a[0]*k,a[1]*k]]},
+    z=>isInt(z[1][0])&&isInt(z[1][1])&&Math.abs(z[1][0])<=8&&Math.abs(z[1][1])<=6,5000);
+  const v=mk('a',a[0],a[1],false);place(v);S.vecs=[v];
+  const ln=Math.abs(k)*hyp(a[0],a[1]);
+  const kt=fmt(k);
+  return{mode:'axes',tools:['vec','erase'],tool0:'vec',
+    text:()=>L(`Дан вектор ${V('a')}. Постройте вектор <span class="nb">${V('b')} = ${kt}·${V('a')}</span> (в любом месте плоскости) и найдите его проекции на оси и длину.`,`Given vector ${V('a')}. Construct <span class="nb">${V('b')} = ${kt}·${V('a')}</span> (anywhere on the plane) and find its projections and length.`)+`<div class="note">${NOTE_SQRT()}</div>`,
+    fields:[{id:'x',label:['<i>b</i><sub>x</sub> =','<i>b</i><sub>x</sub> ='],ans:r[0]},{id:'y',label:['<i>b</i><sub>y</sub> =','<i>b</i><sub>y</sub> ='],ans:r[1]},{id:'l',label:[`|${V('b')}| =`,`|${V('b')}| =`],ans:ln}],
+    drawCheck:()=>dvecs().some(d=>d.x2-d.x1===r[0]&&d.y2-d.y1===r[1])?{ok:true}:{ok:false,msg:L(`Вектор ${kt}·a не построен или построен неверно`+(k<0?' (при отрицательном числе направление меняется на противоположное).':'.'),`The vector ${kt}·a is missing or wrong`+(k<0?' (a negative factor reverses the direction).':'.'))},
+    sol:()=>L(`${V('b')} = ${kt}·${V('a')} = (${fmt(k)}·${pr(a[0])}; ${fmt(k)}·${pr(a[1])}) = ${vc(r)};&nbsp; |<i>b</i>| = |${kt}|·|<i>a</i>| = ${fmt(ln)}`,`${V('b')} = ${kt}·${V('a')} = (${fmt(k)}·${pr(a[0])}; ${fmt(k)}·${pr(a[1])}) = ${vc(r)};&nbsp; |<i>b</i>| = |${kt}|·|<i>a</i>| = ${fmt(ln)}`)};
+}
+function g8(){
+  S.view={...DV};
+  let a=anyVec(6),b=anyVec(6);
+  if(Math.random()<.25){const k=pick([1,-1,2]);const c=[-a[1]*k,a[0]*k];if(Math.abs(c[0])<=7&&Math.abs(c[1])<=7)b=c}
+  const d=dotp(a,b),grid=Math.random()<.4;
+  if(grid){const va=mk('a',a[0],a[1],false),vb=mk('b',b[0],b[1],false);placeAll([va,vb],3);S.vecs=[va,vb]}else S.vecs=[];
+  return{mode:'plain',tools:null,noFig:!grid,
+    text:()=>grid?L(`На клетчатой плоскости изображены векторы ${V('a')} и ${V('b')} (сторона клетки равна 1). Найдите скалярное произведение ${V('a')}·${V('b')}.`,`Vectors ${V('a')} and ${V('b')} are drawn on a grid (one cell = 1). Find the dot product ${V('a')}·${V('b')}.`):
+      L(`Даны векторы ${V('a')}${vc(a)} и ${V('b')}${vc(b)}. Найдите скалярное произведение ${V('a')}·${V('b')}.`,`Given ${V('a')}${vc(a)} and ${V('b')}${vc(b)}. Find the dot product ${V('a')}·${V('b')}.`),
+    fields:[{id:'d',label:[V('a')+'·'+V('b')+' =',V('a')+'·'+V('b')+' ='],ans:d}],
+    sol:()=>`${V('a')}·${V('b')} = <i>a</i><sub>x</sub><i>b</i><sub>x</sub> + <i>a</i><sub>y</sub><i>b</i><sub>y</sub> = ${pr(a[0])}·${pr(b[0])} + ${pr(a[1])}·${pr(b[1])} = ${fmt(d)}`};
+}
+function g9(){
+  S.view={...DV};
+  const [a,b,la,lb,d]=search(()=>{const a=intLenVec(6),b=intLenVec(6);return[a,b,hyp(a[0],a[1]),hyp(b[0],b[1]),dotp(a,b)]},z=>Math.abs(z[4])!==z[2]*z[3],500);
+  const cs=d/(la*lb),grid=Math.random()<.5;
+  if(grid){const va=mk('a',a[0],a[1],false),vb=mk('b',b[0],b[1],false);placeAll([va,vb],3);S.vecs=[va,vb]}else S.vecs=[];
+  return{mode:'plain',tools:null,noFig:!grid,
+    text:()=>(grid?L(`На клетчатой плоскости изображены векторы ${V('a')} и ${V('b')} (сторона клетки равна 1).`,`Vectors ${V('a')} and ${V('b')} are drawn on a grid (one cell = 1).`):L(`Даны векторы ${V('a')}${vc(a)} и ${V('b')}${vc(b)}.`,`Given ${V('a')}${vc(a)} and ${V('b')}${vc(b)}.`))+
+      L(` Найдите косинус угла между ними.<div class="note">Ответ — обыкновенная или десятичная дробь (с точностью до 0,01).</div>`,` Find the cosine of the angle between them.<div class="note">Give a fraction or a decimal (to 0.01).</div>`),
+    fields:[{id:'c',label:['cos φ =','cos φ ='],ans:cs,tol:.006}],
+    sol:()=>`cos φ = ${V('a')}·${V('b')} / (|<i>a</i>||<i>b</i>|) = ${fmt(d)} / (${fmt(la)}·${fmt(lb)}) = ${fmt(cs)}`};
+}
+function g10(){
+  const kind=pick(['len','proj','dot','cos']);
+  if(kind==='dot'){
+    S.view={x0:-1,x1:13,y0:-1,y1:11};
+    const a=anyVec(6),b=anyVec(6);const va=mk('a',a[0],a[1],false),vb=mk('b',b[0],b[1],false);placeAll([va,vb],2);S.vecs=[va,vb];
+    return{mode:'marks',tools:null,
+      text:()=>L(`Найдите скалярное произведение векторов ${V('a')} и ${V('b')} (см. рисунок).`,`Find the dot product of vectors ${V('a')} and ${V('b')} (see figure).`),
+      fields:[{id:'d',label:[V('a')+'·'+V('b')+' =',V('a')+'·'+V('b')+' ='],ans:dotp(a,b)}],
+      sol:()=>`${V('a')} = ${vc(a)},&nbsp; ${V('b')} = ${vc(b)};&nbsp; ${V('a')}·${V('b')} = ${pr(a[0])}·${pr(b[0])} + ${pr(a[1])}·${pr(b[1])} = ${fmt(dotp(a,b))}`};
+  }
+  S.view={...DV};
+  if(kind==='cos'){
+    const [a,b,la,lb,d]=search(()=>{const a=intLenVec(6),b=intLenVec(6);return[a,b,hyp(a[0],a[1]),hyp(b[0],b[1]),dotp(a,b)]},z=>Math.abs(z[4])!==z[2]*z[3],500);
+    const va=mk('a',a[0],a[1],false),vb=mk('b',b[0],b[1],false);placeAll([va,vb],3);S.vecs=[va,vb];const cs=d/(la*lb);
+    return{mode:'axes',tools:null,
+      text:()=>L(`На координатной плоскости изображены векторы ${V('a')} и ${V('b')}. Найдите косинус угла между ними.<div class="note">Ответ — обыкновенная или десятичная дробь (с точностью до 0,01).</div>`,`Vectors ${V('a')} and ${V('b')} are drawn on the coordinate plane. Find the cosine of the angle between them.<div class="note">Give a fraction or a decimal (to 0.01).</div>`),
+      fields:[{id:'c',label:['cos φ =','cos φ ='],ans:cs,tol:.006}],
+      sol:()=>`${V('a')} = ${vc(a)}, ${V('b')} = ${vc(b)}; cos φ = ${fmt(d)} / (${fmt(la)}·${fmt(lb)}) = ${fmt(cs)}`};
+  }
+  const [a,b,p,q,r]=search(()=>{const a=anyVec(4),b=anyVec(4),p=pick([-3,-2,-1,1,2,3]),q=pick([-3,-2,-1,1,2,3]);return[a,b,p,q,comb([p,q],[a,b])]},
+    z=>(z[0][0]*z[1][1]-z[0][1]*z[1][0]!==0)&&(z[4][0]||z[4][1])&&isInt(hyp(z[4][0],z[4][1])),20000);
+  const va=mk('a',a[0],a[1],false),vb=mk('b',b[0],b[1],false);placeAll([va,vb],3);S.vecs=[va,vb];
+  const ex=()=>combTxt([p,q],['a','b']),ln=hyp(r[0],r[1]);
+  if(kind==='len')return{mode:'axes',tools:null,
+    text:()=>L(`На координатной плоскости изображены векторы ${V('a')} и ${V('b')}. Найдите длину вектора <span class="nb">${ex()}</span>.`,`Vectors ${V('a')} and ${V('b')} are drawn on the coordinate plane. Find the length of <span class="nb">${ex()}</span>.`),
+    fields:[{id:'l',label:['Длина','Length'],ans:ln}],
+    sol:()=>`${V('a')} = ${vc(a)}, ${V('b')} = ${vc(b)};&nbsp; ${comb([p,q],['a','b']).length?'':''}${L('вектор','vector')} = ${vc(r)};&nbsp; ${L('длина','length')} = ${fmt(ln)}`};
+  return{mode:'axes',tools:null,
+    text:()=>L(`На координатной плоскости изображены векторы ${V('a')} и ${V('b')}. Найдите проекции вектора <span class="nb">${ex()}</span> на оси координат и его длину.`,`Vectors ${V('a')} and ${V('b')} are drawn on the coordinate plane. Find the projections of <span class="nb">${ex()}</span> on the axes and its length.`),
+    fields:[{id:'x',label:['проекция на ось <i>x</i>','projection on the <i>x</i>-axis'],ans:r[0]},{id:'y',label:['проекция на ось <i>y</i>','projection on the <i>y</i>-axis'],ans:r[1]},{id:'l',label:['Длина','Length'],ans:ln}],
+    sol:()=>`${V('a')} = ${vc(a)}, ${V('b')} = ${vc(b)};&nbsp; ${vc(r)};&nbsp; ${L('длина','length')} = ${fmt(ln)}`};
+}
+function g11(){
+  const kind=pick(['text_len','grid_dot','grid_proj','grid_len','text_dot']);
+  const nm=['a','b','c'];
+  const text=kind.startsWith('text');
+  S.view={...DV};
+  let vs;
+  if(kind==='text_len'||kind==='text_dot'){
+    if(kind==='text_len')vs=[anyVec(18),anyVec(18),anyVec(18)];else vs=[anyVec(8),anyVec(8),anyVec(8)];
+  }else{vs=[anyVec(4),anyVec(4),anyVec(4)]}
+  let co=[0,0,0],r=null,fields,tx,sol;
+  const give=()=>L(`Даны векторы ${V('a')}${vc(vs[0])}, ${V('b')}${vc(vs[1])} и ${V('c')}${vc(vs[2])}.`,`Given ${V('a')}${vc(vs[0])}, ${V('b')}${vc(vs[1])} and ${V('c')}${vc(vs[2])}.`);
+  const fig=()=>L(`На координатной плоскости изображены векторы ${V('a')}, ${V('b')} и ${V('c')}.`,`Vectors ${V('a')}, ${V('b')} and ${V('c')} are drawn on the coordinate plane.`);
+  if(kind==='text_len'||kind==='grid_len'){
+    const big=kind==='text_len';
+    const res=search(()=>{const v=big?[anyVec(big?18:4),anyVec(18),anyVec(18)]:[anyVec(4),anyVec(4),anyVec(4)];
+        const c=[0,0,0].map(()=>ri(-5,5)||1);return[v,c,comb(c,v)]},
+      z=>(z[2][0]||z[2][1])&&isInt(hyp(z[2][0],z[2][1]))&&hyp(z[2][0],z[2][1])<=60&&z[1].some(x=>Math.abs(x)>1),30000);
+    vs=res[0];co=res[1];r=res[2];const ln=hyp(r[0],r[1]);
+    fields=[{id:'l',label:['Длина','Length'],ans:ln}];
+    tx=()=>(text?give():fig())+L(` Найдите длину вектора <span class="nb">${combTxt(co,nm)}</span>.`,` Find the length of <span class="nb">${combTxt(co,nm)}</span>.`);
+    sol=()=>`${vc(r)};&nbsp; ${L('длина','length')} = ${fmt(ln)}`;
+  }else if(kind==='grid_proj'){
+    const res=search(()=>{const c=[0,0,0].map(()=>pick([-2,-1,1,2]));return[c,comb(c,vs)]},z=>z[1][0]||z[1][1],200);
+    co=res[0];r=res[1];
+    fields=[{id:'x',label:['проекция на ось <i>x</i>','projection on the <i>x</i>-axis'],ans:r[0]},{id:'y',label:['проекция на ось <i>y</i>','projection on the <i>y</i>-axis'],ans:r[1]}];
+    tx=()=>fig()+L(` Найдите проекции вектора <span class="nb">${combTxt(co,nm)}</span> на оси координат.`,` Find the projections of <span class="nb">${combTxt(co,nm)}</span> on the axes.`);
+    sol=()=>`${V('a')} = ${vc(vs[0])}, ${V('b')} = ${vc(vs[1])}, ${V('c')} = ${vc(vs[2])};&nbsp; ${vc(r)}`;
+  }else{
+    // dot product of two combinations
+    const res=search(()=>{
+      const u=[0,0,0],w=[0,0,0];const i=ri(0,2);let j;do{j=ri(0,2)}while(j===i);
+      u[i]=sg();if(Math.random()<.6)u[j]=sg();
+      const k=ri(0,2);w[k]=sg();if(Math.random()<.3){let l;do{l=ri(0,2)}while(l===k);w[l]=sg()}
+      return[u,w]},z=>!eq(z[0],z[1])&&[0,1,2].every(i=>z[0][i]||z[1][i]),3000);
+    const u=res[0],w=res[1],U=comb(u,vs),W=comb(w,vs);
+    const wrap=co2=>{const nz=co2.filter(x=>x);return(nz.length>1||nz[0]<0)?`(${combTxt(co2,nm)})`:combTxt(co2,nm)};
+    const d=dotp(U,W);
+    fields=[{id:'d',label:['Ответ:','Answer:'],ans:d}];
+    tx=()=>(text?give():fig())+L(` Найдите значение выражения <span class="nb">${wrap(u)}·${wrap(w)}</span>.`,` Find the value of <span class="nb">${wrap(u)}·${wrap(w)}</span>.`);
+    sol=()=>`${L('Первый множитель','First factor')} ${vc(U)}, ${L('второй','second')} ${vc(W)};&nbsp; ${pr(U[0])}·${pr(W[0])} + ${pr(U[1])}·${pr(W[1])} = ${fmt(d)}`;
+  }
+  if(!text){const vv=vs.map((v,i)=>mk(nm[i],v[0],v[1],false));placeAll(vv,3);S.vecs=vv}else S.vecs=[];
+  return{mode:'axes',tools:null,noFig:text,text:tx,fields,sol};
+}
+
+const TASKS=[
+  {t:['Проекции и модуль вектора','Components and magnitude of a vector'],gen:g1},
+  {t:['Проекции вектора','Components of a vector'],gen:g2},
+  {t:['Сумма векторов (правило треугольника)','Vector sum (triangle rule)'],gen:g3},
+  {t:['Сумма векторов (правило параллелограмма)','Vector sum (parallelogram rule)'],gen:g4},
+  {t:['Разность векторов','Vector difference'],gen:g5},
+  {t:['Проекции суммы и разности векторов','Components of the sum and difference of vectors'],gen:g6,two:true},
+  {t:['Умножение вектора на число','Multiplying by a number'],gen:g7},
+  {t:['Скалярное произведение','Dot product'],gen:g8},
+  {t:['Косинус угла между векторами','Cosine of the angle'],gen:g9},
+  {t:['Два вектора на плоскости','Two vectors on the plane'],gen:g10},
+  {t:['Три вектора','Three vectors'],gen:g11}
+];
+
+/* ---------- hints (a hint costs the point) ---------- */
+const M=n=>`|${V(n)}|`,SB=(n,t)=>`<i>${n}</i><sub>${t}</sub>`;
+const HINT=[
+ null,
+ p=>L(`Проекции вектора на оси равны длинам катетов прямоугольного треугольника, взятым со знаком «+» или «−» в зависимости от направления вектора по отношению к оси.`,
+      `The projections of a vector on the axes equal the legs of a right triangle, taken with a “+” or “−” sign depending on the direction of the vector relative to the axis.`),
+ p=>L(`Сдвиньте один из векторов (инструмент «Двигать») так, чтобы его начало совпало с концом другого. Вектор суммы идёт из начала первого вектора в конец второго.`,
+      `Move one of the vectors (Move tool) so that its tail meets the head of the other. The sum goes from the tail of the first vector to the head of the second.`),
+ p=>L(`Совместите начала векторов. Через конец каждого вектора проведите линию (инструмент «Отрезок»), параллельную другому вектору, — получится параллелограмм. Вектор суммы — его диагональ, выходящая из общего начала.`,
+      `Put the tails together. Through the head of each vector draw a line (Segment tool) parallel to the other vector to get a parallelogram. The sum is its diagonal from the common tail.`),
+ p=>L(`Совместите начала векторов. Вектор разности соединяет концы векторов: он направлен к тому вектору, из которого вычитают.`,
+      `Put the tails together. The difference joins the heads of the vectors: it points to the vector from which we subtract.`),
+ null,
+ p=>L(`При умножении на число k каждая проекция умножается на k, а длина — на |k|. Если k < 0, направление вектора меняется на противоположное. Вектор можно строить из любой точки.`,
+      `Multiplying by k multiplies each projection by k and the length by |k|. If k < 0 the direction is reversed. The vector may be drawn from any point.`),
+ p=>L(`Скалярное произведение через координаты: ${V('a')}·${V('b')} = ${SB('a','x')}${SB('b','x')} + ${SB('a','y')}${SB('b','y')}.`+(p.noFig?'':` Координаты найдите по рисунку.`),
+      `Dot product in coordinates: ${V('a')}·${V('b')} = ${SB('a','x')}${SB('b','x')} + ${SB('a','y')}${SB('b','y')}.`+(p.noFig?'':` Read the coordinates off the figure.`)),
+ p=>{const f=(n,d)=>`<span class="frac"><span>${n}</span><span>${d}</span></span>`,q=x=>SQ(x);
+   const fm=`cos φ = ${f(`${V('a')}·${V('b')}`,`${M('a')}·${M('b')}`)},&nbsp; ${V('a')}·${V('b')} = ${SB('a','x')}${SB('b','x')} + ${SB('a','y')}${SB('b','y')},&nbsp; ${M('a')} = ${q(`${SB('a','x')}² + ${SB('a','y')}²`)}.`;
+   return `<div class="fm">${fm}</div>`+(p.noFig?'':L('Координаты найдите по рисунку.','Read the coordinates off the figure.'))},
+ null,
+ null
+];
+
+/* ---------- rendering ---------- */
+function vlab(cx,cy,t,k){
+  return `<text class="vn k-${k}" x="${cx}" y="${cy+10}" text-anchor="middle">${t}</text><path class="va k-${k}" d="M${cx-5} ${cy-7}h10m-3 -2.5l3 2.5l-3 2.5"/>`;
+}
+const neg=x=>x<0?'−'+(-x):String(x);
+function render(){
+  const box=Q('.fig');if(!box||!S.p)return;
+  const p=S.p,w=S.view,c=S.cell,W=(w.x1-w.x0)*c,H=(w.y1-w.y0)*c;
+  const X=x=>(x-w.x0)*c,Y=y=>(w.y1-y)*c,ax=Y(0),ay=X(0);
+  const ctx={W,H,rects:[],segs:[]};
+  let s=`<svg viewBox="0 0 ${W} ${H}" style="max-width:${Math.min(W,460)}px"><rect class="plane-bg" x=".5" y=".5" width="${W-1}" height="${H-1}" rx="8"/>`;
+  s+='<defs>'+['a','b','c','r'].map(k=>`<marker id="mk-${k}-${S.uid}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="4.5" markerHeight="4.5" orient="auto"><path class="k-${k}" style="stroke:none" d="M0 0L10 5L0 10z"/></marker>`).join('')+'</defs>';
+  if(p.mode==='axes'||p.mode==='plain'){
+    let d='';for(let x=w.x0+1;x<w.x1;x++)d+=`M${X(x)} 0V${H}`;for(let y=w.y0+1;y<w.y1;y++)d+=`M0 ${Y(y)}H${W}`;
+    s+=`<path class="grid" d="${d}"/>`;
+  }
+  if(p.mode!=='plain'){
+    s+=`<line class="axis" x1="0" y1="${ax}" x2="${W-4}" y2="${ax}"/><polygon class="arrow" points="${W},${ax} ${W-11},${ax-4.5} ${W-11},${ax+4.5}"/>`;
+    s+=`<line class="axis" x1="${ay}" y1="${H}" x2="${ay}" y2="4"/><polygon class="arrow" points="${ay},0 ${ay-4.5},11 ${ay+4.5},11"/>`;
+    s+=`<text class="axl" x="${W-14}" y="${ax+18}">x</text><text class="axl" x="${ay+9}" y="15">y</text>`;
+    ctx.segs.push([0,ax,W,ax],[ay,0,ay,H]);
+    ctx.rects.push([W-26,ax+3,W,ax+24],[ay+3,0,ay+24,20]);
+    if(p.mode!=='marks'){s+=`<text class="tick" x="${ay-12}" y="${ax+14}">0</text>`;ctx.rects.push([ay-18,ax+2,ay-2,ax+18])}
+    if(p.mode==='axes'){
+      for(let x=w.x0+1;x<w.x1;x++)if(x)s+=`<line class="axis" style="stroke-width:1" x1="${X(x)}" y1="${ax-3}" x2="${X(x)}" y2="${ax+3}"/><text class="tick" x="${X(x)}" y="${ax+15}" text-anchor="middle">${neg(x)}</text>`;
+      for(let y=w.y0+1;y<w.y1;y++)if(y)s+=`<line class="axis" style="stroke-width:1" x1="${ay-3}" y1="${Y(y)}" x2="${ay+3}" y2="${Y(y)}"/><text class="tick" x="${ay-7}" y="${Y(y)+3.5}" text-anchor="end">${neg(y)}</text>`;
+      ctx.rects.push([0,ax+2,W,ax+19],[ay-28,0,ay-2,H]);
+    }
+    if(p.mode==='marks'){
+      const xs=new Set(),ys=new Set();
+      S.vecs.forEach(v=>{[[v.tx,v.ty],head(v)].forEach(q=>{
+        s+=`<line class="gd" x1="${X(q[0])}" y1="${Y(q[1])}" x2="${X(q[0])}" y2="${ax}"/><line class="gd" x1="${X(q[0])}" y1="${Y(q[1])}" x2="${ay}" y2="${Y(q[1])}"/>`;
+        ctx.segs.push([X(q[0]),Y(q[1]),X(q[0]),ax],[X(q[0]),Y(q[1]),ay,Y(q[1])]);
+        xs.add(q[0]);ys.add(q[1])})});
+      xs.forEach(x=>{if(x){s+=`<text class="tick" style="font-size:13px" x="${X(x)}" y="${ax+17}" text-anchor="middle">${neg(x)}</text>`;ctx.rects.push([X(x)-10,ax+5,X(x)+10,ax+22])}});
+      ys.forEach(y=>{if(y){s+=`<text class="tick" style="font-size:13px" x="${ay-7}" y="${Y(y)+5}" text-anchor="end">${neg(y)}</text>`;ctx.rects.push([ay-28,Y(y)-9,ay-3,Y(y)+9])}});
+      s+=`<text class="tick" style="font-size:13px" x="${ay-14}" y="${ax+16}">0</text>`;ctx.rects.push([ay-26,ax+3,ay-4,ax+22]);
+    }
+  }
+  S.vecs.forEach(v=>ctx.segs.push([X(v.tx),Y(v.ty),X(v.tx+v.dx),Y(v.ty+v.dy)]));
+  S.drawn.forEach(d=>ctx.segs.push([X(d.x1),Y(d.y1),X(d.x2),Y(d.y2)]));
+  if(p.extra&&(!p.extraOnHint||S.hint))s+=p.extra(X,Y,c,ctx);
+  S.vecs.forEach(v=>{
+    const x1=X(v.tx),y1=Y(v.ty),x2=X(v.tx+v.dx),y2=Y(v.ty+v.dy);
+    s+=`<line class="vec k-${v.col}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" marker-end="url(#mk-${v.col}-${S.uid})"/><circle class="k-${v.col}" style="stroke:none" cx="${x1}" cy="${y1}" r="3.8"/>`;
+    const b=fit(ctx,sideCands([x1,y1],[x2,y2],16,24),16,24);
+    s+=vlab(b.x,b.y,v.name,v.col);
+  });
+  const dr=(d,pv)=>{const o=pv?' opacity=".45"':'';
+    return d.type==='vec'?
+      `<line class="vec k-r" x1="${X(d.x1)}" y1="${Y(d.y1)}" x2="${X(d.x2)}" y2="${Y(d.y2)}" marker-end="url(#mk-r-${S.uid})"${o}/><circle class="k-r" style="stroke:none" cx="${X(d.x1)}" cy="${Y(d.y1)}" r="3"${o}/>`:
+      `<line class="dl" x1="${X(d.x1)}" y1="${Y(d.y1)}" x2="${X(d.x2)}" y2="${Y(d.y2)}"${o}/><circle class="dt" cx="${X(d.x1)}" cy="${Y(d.y1)}" r="3"${o}/><circle class="dt" cx="${X(d.x2)}" cy="${Y(d.y2)}" r="3"${o}/>`};
+  S.drawn.forEach(d=>s+=dr(d,false));
+  if(S.drag&&S.drag.kind==='draw')s+=dr({type:S.drag.t,x1:S.drag.a[0],y1:S.drag.a[1],x2:S.drag.b[0],y2:S.drag.b[1]},true);
+  s+='</svg>';
+  box.innerHTML=s;
+  drawRadBars(box);
+}
+function drawRadBars(root){
+  const c2=document.createElement('canvas').getContext('2d');
+  root.querySelectorAll('tspan.rr').forEach(t=>{
+    try{const tx=t.parentNode,cs=getComputedStyle(tx);
+      c2.font=`${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      const asc=c2.measureText('√').actualBoundingBoxAscent,bb=t.getBBox(),base=+tx.getAttribute('y');
+      const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+      ln.setAttribute('class','rbar');ln.setAttribute('x1',bb.x-.5);ln.setAttribute('x2',bb.x+bb.width+.5);
+      ln.setAttribute('y1',base-asc+.8);ln.setAttribute('y2',base-asc+.8);t.ownerSVGElement.appendChild(ln)}catch(e){}
+  });
+}
+/* ---------- cards: several tasks on one tab, each with its own state ---------- */
+const CF=['uid','task','vecs','drawn','tool','view','p','hint','counted','tried','assisted','drag','last','root'];
+function wc(c,fn){ /* run fn with card c loaded into S, then store it back */
+  const prev={};CF.forEach(k=>prev[k]=S[k]);CF.forEach(k=>S[k]=c[k]);
+  try{return fn()}finally{CF.forEach(k=>c[k]=S[k]);CF.forEach(k=>S[k]=prev[k])}
+}
+const Q=sel=>S.root.querySelector(sel);
+const inp=id=>Q('[data-f="'+id+'"]');
+let UID=0;
+const GROUPS=[
+  {t:['Проекции и модуль','Components and magnitude'],tasks:[0,1]},
+  {t:['Сумма, разность, умножение','Sum, difference, multiplication'],tasks:[2,3,4,5,6]},
+  {t:['Скалярное произведение','Dot product'],tasks:[7,8]},
+  {t:['Повторяем для ЕГЭ','EGE review'],tasks:[9,10]}
+];
+const GC=GROUPS.map(()=>null);let curG=0;
+const allCards=()=>GC.filter(Boolean).reduce((a,x)=>a.concat(x),[]);
+function mkCard(ti,num){
+  const root=document.createElement('section');root.className='task';
+  root.innerHTML='<div class="info"></div><div class="plane"><div class="tools"></div><div class="fig"></div></div>';
+  const c={uid:++UID,task:ti,num,vecs:[],drawn:[],tool:'move',view:{...DV},p:null,hint:false,counted:false,tried:false,assisted:false,drag:null,last:null,root};
+  root._card=c;wc(c,newTask);return c;
+}
+function showGroup(i){
+  curG=i;try{localStorage.setItem('vectors.tab',String(i))}catch(e){}
+  if(!GC[i])GC[i]=GROUPS[i].tasks.map((ti,k)=>mkCard(ti,(i+1)+'.'+(k+1)));
+  const box=$('cards');box.innerHTML='';GC[i].forEach(c=>box.appendChild(c.root));
+  GC[i].forEach(c=>wc(c,render)); /* redraw once attached (radical bars need layout) */
+  renderHeader();
+}
+function renderHeader(){
+  const ru=lang==='ru';
+  $('h1').textContent=L('Действия с векторами','Vector operations');
+  $('home').textContent=L('← Все тренажёры','← All trainers');
+  $('lbs').textContent=L('Очки','Score');$('reset').textContent=L('Обнулить','Reset');
+  $('lru').setAttribute('aria-pressed',ru);$('len').setAttribute('aria-pressed',!ru);
+  $('tabs').innerHTML=GROUPS.map((g,i)=>`<button type="button" role="tab" aria-selected="${i===curG}" onclick="showGroup(${i})">${i+1}. ${g.t[ru?0:1]}</button>`).join('');
+  updateScore();
+}
+
+/* ---------- rendering of one card ---------- */
+function renderTools(){
+  const p=S.p,t=Q('.tools');
+  if(!p.tools){t.innerHTML='';return}
+  const names={move:['✥ Двигать','✥ Move'],vec:['↗ Вектор','↗ Vector'],line:['┅ Отрезок','┅ Segment'],erase:['⌫ Ластик','⌫ Eraser']};
+  t.innerHTML='<span class="seg">'+p.tools.map(k=>`<button type="button" aria-pressed="${S.tool===k}" data-a="tool" data-k="${k}">${names[k][lang==='ru'?0:1]}</button>`).join('')+'</span>'+
+    `<button type="button" class="tiny" data-a="undo">↶ ${L('Отменить','Undo')}</button><button type="button" class="tiny" data-a="clear">${L('Очистить','Clear')}</button>`;
+}
+function setTool(k){S.tool=k;renderTools()}
+function undo(){S.drawn.pop();render()}
+function clearAll(){S.drawn=[];render()}
+function updateHint(){const h=Q('.hinttext');if(!h)return;h.hidden=!(S.hint&&S.p&&S.p.hintText);h.innerHTML=S.hint&&S.p&&S.p.hintText?S.p.hintText():''}
+function toggleHint(el){S.hint=!S.hint;if(S.hint)S.assisted=true;if(el)el.setAttribute('aria-pressed',S.hint);render();updateHint()}
+
+/* ---------- statistics ---------- */
+const STKEY='vectors.trainer.stat.v1';
+function loadStat(){try{const o=JSON.parse(localStorage.getItem(STKEY));if(Array.isArray(o)&&o.length===TASKS.length)return o}catch(e){}return TASKS.map(()=>({ok:0,tries:0}))}
+function saveStat(){try{localStorage.setItem(STKEY,JSON.stringify(S.stat))}catch(e){}}
+function totals(){return S.stat.reduce((a,x)=>({ok:a.ok+x.ok,tries:a.tries+x.tries}),{ok:0,tries:0})}
+function updateScore(){
+  const t=totals();$('sc').textContent=t.ok+L(' из ',' of ')+t.tries;
+  allCards().forEach(c=>{const el=c.root.querySelector('.tally'),st=S.stat[c.task];if(el)el.textContent=L('очки: ','score: ')+st.ok+L(' из ',' of ')+st.tries});
+}
+function resetStat(){S.stat=TASKS.map(()=>({ok:0,tries:0}));saveStat();updateScore()}
+
+function rootBtn(){return `<button type="button" class="tiny" title="${L('вставить знак корня','insert root sign')}" data-a="root">√</button>`}
+function renderUI(keep){
+  const p=S.p,ru=lang==='ru',T=TASKS[S.task],uid=S.uid;
+  let h=`<div class="eyebrow"><span>${L('Задание','Task')} ${S.root._card.num}</span><span class="tally"></span></div><h2>${T.t[ru?0:1]}</h2><div class="q">${p.text()}</div>`;
+  if(p.fields.length){
+    h+='<div class="coefs'+(T.two?' two':'')+'">'+p.fields.map(f=>`<div class="cf"><label for="f_${uid}_${f.id}">${f.label[ru?0:1]}</label><input id="f_${uid}_${f.id}" data-f="${f.id}" autocomplete="off" value="${(keep&&keep[f.id])||''}"><span class="mark" data-m="${f.id}"></span></div>`).join('')+
+      (T.two?`<div class="rootcell">${rootBtn()}</div></div>`:`</div><div class="rootbtn">${rootBtn()}</div>`);
+  }
+  h+=`<div class="actions"><button type="button" class="btn secondary" data-a="new">${L('Новое задание','New task')}</button><button type="button" class="btn primary" data-a="check">${L('Готово','Done')}</button><button type="button" class="btn secondary b-file" title="${L('Добавить это задание (с вашим построением и ответом) в файл','Add this task (with your construction and answer) to the file')}" data-a="file">${L('В файл','Add to file')}</button></div>`;
+  h+=`<div class="links">${p.hint?`<button type="button" class="link" aria-pressed="${S.hint}" data-a="hint">${L('Подсказка','Hint')}</button>`:''}</div><div class="hinttext status info" hidden></div><div class="msg"></div>`;
+  Q('.info').innerHTML=h;
+  S.root.className='task'+(p.noFig?' nofig':'');
+  Q('.plane').hidden=!!p.noFig;
+  renderTools();render();updateScore();updateHint();repUI();
+}
+function ins(ch){const el=S.last||Q('.cf input');if(!el)return;const a=el.selectionStart||el.value.length;el.value=el.value.slice(0,a)+ch+el.value.slice(a);el.focus();el.setSelectionRange(a+1,a+1)}
+function readInputs(){const o={};if(S.p)S.p.fields.forEach(f=>{const e=inp(f.id);if(e)o[f.id]=e.value});return o}
+
+function doCheck(){
+  const p=S.p;let ok=true;const msgs=[];
+  if(p.drawCheck){const r=p.drawCheck();if(!r.ok){ok=false;msgs.push(r.msg)}}
+  let bad=0;
+  p.fields.forEach(f=>{
+    const el=inp(f.id),mk=Q('[data-m="'+f.id+'"]'),v=parse(el.value);
+    const g=isFinite(v)&&Math.abs(v-f.ans)<=(f.tol||0.011);
+    el.className=g?'ok':'bad';mk.className='mark '+(g?'ok':'bad');mk.textContent=g?'✓':'✕';
+    if(!g){ok=false;bad++}
+  });
+  const st=S.stat[S.task];
+  if(!S.tried){S.tried=true;st.tries++}
+  let h='';
+  if(ok){
+    if(S.assisted)h=`<div class="status ok">${L('Верно, но подсказка уже была показана — очко не начисляется.','Correct, but a hint was shown — no point awarded.')}`;
+    else{if(!S.counted){S.counted=true;st.ok++}
+      h=`<div class="status ok">${L('Верно! +1 очко. Нажмите «Новое задание», чтобы продолжить.','Correct! +1 point. Press “New task” to continue.')}`}
+    if(p.after)h+=p.after();
+    h+='</div>';
+  }else{
+    if(bad)msgs.push(L('Есть ошибки в полях, отмеченных крестиком (или поля пусты).','Some fields marked ✕ are wrong or empty.'));
+    h=`<div class="status bad">${msgs.join('<br>')}</div>`;
+  }
+  Q('.msg').innerHTML=h;
+  saveStat();updateScore();
+}
+
+function newTask(){
+  S.drawn=[];S.hint=false;S.counted=false;S.tried=false;S.assisted=false;S.drag=null;S.last=null;
+  S.p=TASKS[S.task].gen();const hf=HINT[S.task];if(hf&&!S.p.hintText){S.p.hint=true;S.p.hintText=()=>hf(S.p)}
+  S.tool=S.p.tool0||(S.p.tools?S.p.tools[0]:'move');
+  renderUI();
+}
+function setLang(l){
+  const ks=allCards().map(c=>wc(c,readInputs));
+  lang=l;document.documentElement.lang=l;try{localStorage.setItem('trainers.lang',l)}catch(e){}
+  renderHeader();allCards().forEach((c,i)=>wc(c,()=>renderUI(ks[i])));repUI();
+}
+
+/* ---------- interaction ---------- */
+function gp(e){
+  const svg=Q('.fig svg'),r=svg.getBoundingClientRect(),w=S.view;
+  return{x:w.x0+(e.clientX-r.left)/r.width*(w.x1-w.x0),y:w.y1-(e.clientY-r.top)/r.height*(w.y1-w.y0)};
+}
+const clampNode=(x,y)=>{const w=S.view;return[Math.min(w.x1,Math.max(w.x0,Math.round(x))),Math.min(w.y1,Math.max(w.y0,Math.round(y)))]};
+function dseg(px,py,x1,y1,x2,y2){
+  const dx=x2-x1,dy=y2-y1,l=dx*dx+dy*dy;let t=l?((px-x1)*dx+(py-y1)*dy)/l:0;t=Math.max(0,Math.min(1,t));
+  return Math.hypot(px-(x1+t*dx),py-(y1+t*dy));
+}
+function ptrDown(e){
+  if(!S.p||!S.p.tools)return;e.preventDefault();const q=gp(e);
+  if(S.tool==='move'){
+    let best=null,bd=.5;
+    S.vecs.forEach(v=>{if(!v.movable)return;const d=dseg(q.x,q.y,v.tx,v.ty,v.tx+v.dx,v.ty+v.dy);if(d<bd){bd=d;best=v}});
+    if(best)S.drag={kind:'move',v:best,ox:q.x-best.tx,oy:q.y-best.ty};
+  }else if(S.tool==='erase'){
+    let bi=-1,bd=.5;
+    S.drawn.forEach((d,i)=>{const dd=dseg(q.x,q.y,d.x1,d.y1,d.x2,d.y2);if(dd<bd){bd=dd;bi=i}});
+    if(bi>=0)S.drawn.splice(bi,1);
+  }else{const n=clampNode(q.x,q.y);S.drag={kind:'draw',t:S.tool,a:n,b:n}}
+  render();
+}
+function ptrMove(e){
+  if(!S.drag)return;const q=gp(e),w=S.view;
+  if(S.drag.kind==='move'){
+    const v=S.drag.v;let nx=Math.round(q.x-S.drag.ox),ny=Math.round(q.y-S.drag.oy);
+    nx=Math.min(Math.max(nx,Math.max(w.x0,w.x0-v.dx)),Math.min(w.x1,w.x1-v.dx));
+    ny=Math.min(Math.max(ny,Math.max(w.y0,w.y0-v.dy)),Math.min(w.y1,w.y1-v.dy));
+    v.tx=nx;v.ty=ny;
+  }else S.drag.b=clampNode(q.x,q.y);
+  render();
+}
+function ptrUp(){
+  if(!S.drag)return;
+  if(S.drag.kind==='draw'&&!eq(S.drag.a,S.drag.b))S.drawn.push({type:S.drag.t,x1:S.drag.a[0],y1:S.drag.a[1],x2:S.drag.b[0],y2:S.drag.b[1]});
+  S.drag=null;render();
+}
+let dragCard=null;
+const cardOf=el=>{const r=el&&el.closest&&el.closest('.task');return r&&r._card};
+function act(a,b){
+  switch(a){
+    case 'new':newTask();break;case 'check':doCheck();break;case 'hint':toggleHint(b);break;
+    case 'tool':setTool(b.dataset.k);break;case 'undo':undo();break;case 'clear':clearAll();break;
+    case 'root':ins('√');break;case 'file':addToReport(b);break;
+  }
+}
+function initEvents(){
+  const C=$('cards');
+  C.addEventListener('click',e=>{const b=e.target.closest('[data-a]');const c=b&&cardOf(b);if(c)wc(c,()=>act(b.dataset.a,b))});
+  C.addEventListener('focusin',e=>{const t=e.target;if(t.matches&&t.matches('.cf input')){const c=cardOf(t);if(c)c.last=t}});
+  C.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches&&e.target.matches('.cf input')){const c=cardOf(e.target);if(c)wc(c,doCheck)}});
+  C.addEventListener('pointerdown',e=>{const f=e.target.closest('.fig');const c=f&&cardOf(f);if(!c)return;wc(c,()=>ptrDown(e));if(c.drag)dragCard=c});
+  window.addEventListener('pointermove',e=>{if(dragCard)wc(dragCard,()=>ptrMove(e))});
+  window.addEventListener('pointerup',()=>{if(!dragCard)return;const c=dragCard;dragCard=null;wc(c,ptrUp)});
+}
+
+/* ---------- save tasks to PDF / HTML (same scheme as the graph trainer) ---------- */
+const REP_KEEP='vectors.report1',REP_MAX=30;
+let report=[];
+try{report=JSON.parse(localStorage.getItem(REP_KEEP)||'[]');if(!Array.isArray(report))report=[]}catch(e){report=[]}
+const repSave=()=>{try{localStorage.setItem(REP_KEEP,JSON.stringify(report))}catch(e){}};
+const REPT=()=>({hdr:L('Тренажёр: действия с векторами','Vector trainer'),ttl:L('Действия с векторами: сохранённые задания','Vector trainer: saved tasks'),fail:L('Не удалось сохранить файл','Could not save the file')});
+function repUI(){
+  const n=report.length;
+  $('sv-l').textContent=L('Сохранить в файл:','Save to file:');
+  $('rep-count').textContent=n?L('В наборе: '+n+' из '+REP_MAX,'In the set: '+n+' of '+REP_MAX):L('Нажмите «В файл» в нужном задании, чтобы собрать задания в один PDF или HTML-файл.','Press “Add to file” in a task to collect tasks into one PDF or HTML file.');
+  $('rep-clear').textContent=L('очистить','clear');$('rep-clear').hidden=!n;
+  $('save-pdf').disabled=$('save-html').disabled=!n;
+}
+function stripDark(css){
+  const cut=(t,start)=>{let i;while((i=t.indexOf(start))>=0){let d=0,j=t.indexOf('{',i);for(;j<t.length;j++){if(t[j]==='{')d++;else if(t[j]==='}'){d--;if(!d){j++;break}}}t=t.slice(0,i)+t.slice(j)}return t};
+  css=cut(css,'@media (prefers-color-scheme:dark)');css=cut(css,':root[data-theme="dark"]');return css;
+}
+const escX=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const addCssText='[hidden]{display:none!important}.snap{box-sizing:border-box;padding:2px;background:#fff;color:var(--ink);font-family:var(--font-ui);font-size:15px;line-height:1.5}.snap .task{margin:0}';
+let SNAPCSS='';const snapCss=()=>SNAPCSS||(SNAPCSS=stripDark($('appcss').textContent)+addCssText);
+let FONTCSS=null;
+async function fontCss(){
+  if(FONTCSS!==null)return FONTCSS;FONTCSS='';
+  try{
+    const link=document.querySelector('link[href*="fonts.googleapis.com/css"]');if(!link)return FONTCSS;
+    const css=await (await fetch(link.href)).text();
+    const re=/\/\*\s*([a-z-]+)\s*\*\/\s*(@font-face\s*\{[^}]*\})/g,blocks=[];let m;
+    while((m=re.exec(css)))if(m[1]==='cyrillic'||m[1]==='latin')blocks.push(m[2]);
+    const b64=buf=>{let t='';const u=new Uint8Array(buf);for(let i=0;i<u.length;i+=0x8000)t+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(t)};
+    const done=await Promise.all(blocks.map(async b=>{const u=/url\((https:[^)]+)\)/.exec(b);if(!u)return '';const buf=await (await fetch(u[1])).arrayBuffer();return b.replace(u[0],'url(data:font/woff2;base64,'+b64(buf)+')')}));
+    FONTCSS=done.join('\n');
+  }catch(e){FONTCSS=''}
+  return FONTCSS;
+}
+function snapshot(sec){
+  const clone=sec.cloneNode(true);
+  clone.querySelectorAll('.actions,.links,.tally,.tools,.rootbtn,.rootcell').forEach(e=>e.remove());
+  const a=sec.querySelectorAll('input'),b=clone.querySelectorAll('input');
+  a.forEach((el,k)=>{if(b[k])b[k].setAttribute('value',el.value)});
+  /* measure the card as it will look in the file: without buttons, tools and links */
+  const hid=[...sec.querySelectorAll('.actions,.links,.tally,.tools,.rootbtn,.rootcell')];
+  const prev=hid.map(e=>e.style.display);hid.forEach(e=>{e.style.display='none'});
+  const r=sec.getBoundingClientRect();
+  hid.forEach((e,i)=>{e.style.display=prev[i]});
+  return{html:new XMLSerializer().serializeToString(clone),w:Math.ceil(r.width)+4,h:Math.ceil(r.height)+4};
+}
+const svgDoc=it=>'<svg xmlns="http://www.w3.org/2000/svg" width="'+it.w+'" height="'+it.h+'" viewBox="0 0 '+it.w+' '+it.h+'"><foreignObject x="0" y="0" width="'+it.w+'" height="'+it.h+'"><div xmlns="http://www.w3.org/1999/xhtml" class="snap" style="width:'+it.w+'px;height:'+it.h+'px"><style>'+escX(FONTCSS+snapCss())+'</style>'+it.html+'</div></foreignObject></svg>';
+const loadImg=xml=>new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(im);im.onerror=()=>rej(new Error('img'));im.src='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(xml)))});
+function addToReport(btn){
+  const lab=L('В файл','Add to file');
+  if(report.length>=REP_MAX){btn.textContent=L('Набор заполнен ('+REP_MAX+')','Set is full ('+REP_MAX+')');setTimeout(()=>{btn.textContent=lab},1600);return}
+  try{report.push(snapshot(S.root))}catch(e){return}
+  repSave();repUI();btn.textContent=L('Добавлено ✓','Added ✓');setTimeout(()=>{btn.textContent=lab},1400);
+}
+let dl=null;
+try{if(window.claude&&claude.use)claude.use('downloads').then(d=>{if(d)dl=d}).catch(()=>{})}catch(e){}
+async function saveFile(name,data,mime){
+  if(dl)return dl.save({filename:name,data});
+  const url=URL.createObjectURL(new Blob([data],{type:mime})),a=document.createElement('a');
+  a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
+}
+async function pageCanvases(items){
+  const W=1240,H=1754,M=70,TW=W-2*M,FONT="'IBM Plex Sans','Noto Sans','DejaVu Sans',Arial,sans-serif",pages=[],hdr=REPT().hdr;
+  let cv,ctx,y;
+  const newPage=()=>{cv=document.createElement('canvas');cv.width=W;cv.height=H;ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#5b6978';ctx.font='500 20px '+FONT;ctx.textBaseline='top';ctx.fillText(hdr,M,M-34);y=M+14;pages.push(cv)};
+  newPage();
+  for(const it of items){
+    const im=await loadImg(svgDoc(it));
+    let tw=Math.min(TW,it.w*1.6),th=it.h*tw/it.w;const room=H-2*M-14;
+    if(th>room){tw=tw*room/th;th=room}
+    if(y+th>H-M)newPage();
+    ctx.drawImage(im,M,y,tw,th);y+=th+30;
+  }
+  pages.forEach((pg,i)=>{const c=pg.getContext('2d');c.fillStyle='#5b6978';c.font='500 20px '+FONT;c.textAlign='center';c.textBaseline='top';c.fillText((i+1)+' / '+pages.length,W/2,H-M+22)});
+  return pages;
+}
+function pdfFromCanvases(cvs){
+  const enc=new TextEncoder(),parts=[],offs=[],n=cvs.length,pw=595;
+  let pos=0;const push=b=>{const u=typeof b==='string'?enc.encode(b):b;parts.push(u);pos+=u.length};
+  const obj=(id,body)=>{offs[id]=pos;push(id+' 0 obj\n');push(body);push('\nendobj\n')};
+  push('%PDF-1.4\n');obj(1,'<< /Type /Catalog /Pages 2 0 R >>');
+  obj(2,'<< /Type /Pages /Kids ['+cvs.map((_,i)=>(3+i*3)+' 0 R').join(' ')+'] /Count '+n+' >>');
+  cvs.forEach((cv,i)=>{
+    const jpg=atob(cv.toDataURL('image/jpeg',0.92).split(',')[1]),img=new Uint8Array(jpg.length);
+    for(let j=0;j<jpg.length;j++)img[j]=jpg.charCodeAt(j);
+    const ph=+(cv.height*pw/cv.width).toFixed(2),pg=3+i*3,cs='q '+pw+' 0 0 '+ph+' 0 0 cm /Im0 Do Q';
+    obj(pg,'<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+pw+' '+ph+'] /Contents '+(pg+1)+' 0 R /Resources << /XObject << /Im0 '+(pg+2)+' 0 R >> >> >>');
+    obj(pg+1,'<< /Length '+cs.length+' >>\nstream\n'+cs+'\nendstream');
+    offs[pg+2]=pos;push((pg+2)+' 0 obj\n<< /Type /XObject /Subtype /Image /Width '+cv.width+' /Height '+cv.height+' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+img.length+' >>\nstream\n');push(img);push('\nendstream\nendobj\n');
+  });
+  const total=3*n+3,xr=pos;push('xref\n0 '+total+'\n0000000000 65535 f \n');
+  for(let k=1;k<total;k++)push(String(offs[k]).padStart(10,'0')+' 00000 n \n');
+  push('trailer\n<< /Size '+total+' /Root 1 0 R >>\nstartxref\n'+xr+'\n%%EOF');
+  const out=new Uint8Array(pos);let o=0;for(const q of parts){out.set(q,o);o+=q.length}return out;
+}
+function uniq(h,k){
+  const ids=[];h.replace(/ id="([^"]+)"/g,(m0,x)=>{ids.push(x);return m0});
+  ids.forEach(x=>{const y=x+'_'+k,e=x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    h=h.replace(new RegExp(' id="'+e+'"','g'),' id="'+y+'"').replace(new RegExp('url\\(#'+e+'\\)','g'),'url(#'+y+')')
+     .replace(new RegExp('(for|aria-labelledby|aria-controls)="'+e+'"','g'),'$1="'+y+'"').replace(new RegExp('href="#'+e+'"','g'),'href="#'+y+'"')});
+  return h;
+}
+function htmlFromItems(items){
+  const R=REPT(),sec=(it,k)=>'<section><div class="snap" style="width:'+it.w+'px;max-width:100%">'+uniq(it.html,k)+'</div></section>';
+  return '<!doctype html><html lang="'+lang+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+R.ttl+'</title><style>'+FONTCSS+'\n'+snapCss()+
+   '\nbody{margin:0 auto;max-width:1040px;padding:24px 16px;background:#fff;color:var(--ink);font-family:var(--font-ui);font-size:15px;line-height:1.5}h1.rh{font-size:20px;color:var(--muted);font-weight:500;margin:0 0 18px}section{margin:0 0 26px;break-inside:avoid}.snap{padding:0}</style></head><body><h1 class="rh">'+R.hdr+'</h1>'+items.map(sec).join('')+'</body></html>';
+}
+async function doSave(kind){
+  if(!report.length)return;
+  const bt=$(kind==='html'?'save-html':'save-pdf');bt.disabled=true;await fontCss();
+  try{
+    if(kind==='html')await saveFile('vector_tasks.html',htmlFromItems(report),'text/html');
+    else{const pdf=pdfFromCanvases(await pageCanvases(report));window.__pdf=pdf;await saveFile('vector_tasks.pdf',pdf,'application/pdf')}
+  }catch(e){if(!e||e.code!=='declined')$('rep-count').textContent=REPT().fail}
+  repUI();
+}
+$('save-pdf').addEventListener('click',()=>doSave('pdf'));
+$('save-html').addEventListener('click',()=>doSave('html'));
+$('rep-clear').addEventListener('click',()=>{report=[];repSave();repUI()});
+S.stat=loadStat();
+initEvents();
+document.documentElement.lang=lang;
+{let g0=0;try{g0=+localStorage.getItem('vectors.tab')||0}catch(e){}if(!(g0>=0&&g0<GROUPS.length))g0=0;showGroup(g0)}
+</script>
+</body>
+</html>
